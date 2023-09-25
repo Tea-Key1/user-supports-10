@@ -1,113 +1,261 @@
-import Image from 'next/image'
+"use client";
+
+import { Fragment, useRef, useState, useEffect } from "react";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Environment, Html } from "@react-three/drei";
+import gsap from "gsap";
+import { motion } from "framer-motion";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import Image from "next/image";
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    const [hoverWidth, setHoverWidth] = useState<number>(0);
+    const [opacity, setOpacity] = useState<number>(0);
+    const [color, setColor] = useState<string>("#0000bb")
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+    const [start, setStart] = useState(false);
+    const [timerRunning, setTimerRunning] = useState(false);
+    const [timerInterval, setTimerInterval] = useState<number | null>(null);
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+    useEffect(() => {
+        let startTime = 0;
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+        function updateTimer() {
+            const interval: any = setInterval(() => {
+                const currentTime = Date.now();
+                const elapsedTime = new Date(currentTime - startTime);
+                const minutes = elapsedTime.getUTCMinutes();
+                const seconds = elapsedTime.getUTCSeconds();
+                const milliseconds = elapsedTime.getUTCMilliseconds();
+                const timer = document.getElementById("timer") as HTMLDivElement;
+                if (timer) {
+                    timer.innerText = `${minutes}:${seconds}.${milliseconds}`;
+                }
+            }, 10);
+            startTime = Date.now();
+            setTimerRunning(true);
+            setTimerInterval(interval);
+        }
+        if (start) {
+            updateTimer();
+        }
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
+        return () => {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        };
+    }, [start]);
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    const startFunction = () => {
+        setStart(true);
+    };
+
+    useEffect(() => {
+        const handleMouseMove = (event: { clientX: any; clientY: any; }) => {
+            setMousePos({ x: event.clientX + 10, y: event.clientY + 20 });
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+
+        return () => {
+            window.removeEventListener(
+                'mousemove',
+                handleMouseMove
+            );
+        };
+    }, []);
+
+    return (
+        <Fragment>
+            <section className="h-[100dvh] w-[100dvw] flex flex-col justify-center">
+                <motion.div
+                    className={`w-full h-full flex flex-col justify-center ${start ? 'h-[20dvh]' : ''}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                >                    <div className="h-[30dvh] w-[100dvw] bg-pink-100 flex flex-row flex-wrap text-xl my-auto bg-opacity-50">
+                        <ol className="h-full w-full ml-10 md:ml-20 lg:ml-56">
+                            <li className="text-base my-5 underline font-bold md:text-2xl">次の ３ つのタスクを実行してください。</li>
+                            <li className="text-base md:text-xl">1. ボタンAを押してください。</li>
+                            <li className="text-base md:text-xl">2. 3つのチェックボックスに<span className="font-bold underline">全てチェック</span>を入れてください。</li>
+                            <li className="text-base md:text-xl">3. 完了時間を記録してください</li>
+                            {start ? (
+                                <div>
+                                    <div id="timer" className="h-[5dvh] w-[10dvw]" />
+                                </div>
+                            ) : (
+                                <button onClick={startFunction} className="h-[5dvh] w-[10dvw] text-base font-medium text-center bg-white rounded-xl border-2 border-amber-900">ボタンA</button>
+                            )}
+                        </ol>
+                    </div>
+                    {start ? <div className="absolute z-10 bottom-20 right-20 h-[20dvh] w-[20dvh] flex flex-col bg-white text-center justify-center"><Image src="/textures/hover.svg" className="h-full w-full p-5" alt={""} width={100} height={100} /></div> : null}
+                    <div className="absolute w-20 bg-gray-200 rounded-full h-2.5 z-10" style={{ top: `${mousePos.y}px`, left: `${mousePos.x}px`, transform: "translate(-50%, -50%)", opacity: `${opacity}` }}>
+                        <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${hoverWidth}%`, backgroundColor: `${color}` }}></div>
+                    </div>
+                    <Canvas className="h-[100dvh] w-[100dvw]" camera={{ position: [6, 7, 25], fov: 45 }}>
+                        <Environment background preset="city" />
+                        <Box setHoverWidth={setHoverWidth} setOpacity={setOpacity} setColor={setColor} timerInterval={timerInterval} timerRunning={timerRunning} start={start} />
+                    </Canvas>
+                </motion.div>
+            </section>
+        </Fragment>
+    );
 }
+
+
+const Box = ({ setHoverWidth, setOpacity, setColor, timerInterval, timerRunning, start }: { setHoverWidth: React.Dispatch<React.SetStateAction<number>>; setOpacity: React.Dispatch<React.SetStateAction<number>>; setColor: React.Dispatch<React.SetStateAction<string>>; timerInterval: number | null; timerRunning: boolean; start: boolean }) => {
+    const [hover, setHover] = useState(false);
+    const [move, setMove] = useState(0);
+    const [hoverTime, setHoverTime] = useState(0);
+    const [unfinished, setFinish] = useState(true)
+    const groupRef: any = useRef();
+    const cameraModel = useLoader(GLTFLoader as any, "/model/camera.glb", (loader) => {
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath("/draco/");
+        loader.setDRACOLoader(dracoLoader);
+    });
+
+    function enterFunction(e: any) {
+
+        // ホバー時の時間経過を取得（0〜4秒）
+        const time = Math.min(e.object.userData.hoverTime, 4);
+        setHoverTime(time);
+        setHover(true);
+    }
+
+    function leaveFunction() {
+        setHoverTime(0);
+        setHover(false);
+    }
+
+    useFrame((state, delta) => {
+        if(start){
+
+            if (hover && move == 0) {
+
+                setHoverTime((prevTime) => Math.min(prevTime + delta));
+                setOpacity(Math.min(100, hoverTime * 10))
+                let newWidth = Math.min(100, (hoverTime) * 100);
+                setHoverWidth(newWidth);
+                if (newWidth == 100) {
+                    setMove(1)
+                    setColor("#bb0000")
+                    newWidth = 0;
+                    setHover(false)
+    
+                }
+            }
+            if (hover && move == 1) {
+    
+                setHoverTime((prevTime) => Math.min(prevTime + delta));
+                setOpacity(Math.min(100, hoverTime * 10))
+    
+                let newWidth = Math.min(100, (hoverTime) * 100);
+                setHoverWidth(newWidth);
+                if (newWidth == 100) {
+                    setMove(2)
+                    setColor("#00bb00")
+                    newWidth = 0;
+                    setHover(false)
+                }
+            }
+            if (hover && move == 2) {
+    
+                setHoverTime((prevTime) => Math.min(prevTime + delta));
+                setOpacity(Math.min(100, hoverTime * 10))
+    
+                let newWidth = Math.min(100, (hoverTime) * 100);
+                setHoverWidth(newWidth);
+                if (newWidth == 100) {
+                    setMove(0)
+                    setColor("#0000bb")
+                    newWidth = 0;
+                    setHover(false)
+                }
+            }
+            if (!hover) {
+                setHoverWidth(0)
+                setOpacity(0)
+            }
+        }
+    });
+
+    useEffect(() => {
+        if (move == 1) {
+            const timeLine = gsap.timeline();
+            timeLine.to(groupRef.current.rotation, { y: Math.PI, duration: 1 });
+        }
+        if (move == 2) {
+            const timeLine = gsap.timeline();
+            timeLine.to(groupRef.current.rotation, { x: -Math.PI / 2, duration: 1 });
+        }
+        if (move == 0) {
+            const timeLine = gsap.timeline();
+            timeLine.to(groupRef.current.rotation, { x: 0, y: 0, duration: 1 });
+        }
+    }, [move])
+
+    function checkCompletion() {
+        const checkbox1 = document.getElementById("checkbox1") as HTMLInputElement;
+        const checkbox2 = document.getElementById("checkbox2") as HTMLInputElement;
+        const checkbox3 = document.getElementById("checkbox3") as HTMLInputElement;
+
+        if (checkbox1.checked && checkbox2.checked && checkbox3.checked && timerRunning) {
+            if (timerInterval && unfinished) {
+                clearInterval(timerInterval);
+                alert("お疲れ様でした。経過時間をコピーし、Google Formsに貼り付けてください。");
+                setFinish(false)
+            }
+        }
+    }
+
+    return (
+        <group ref={groupRef}>
+            <group scale={50} >
+                <mesh
+                    geometry={cameraModel.scene.children[0].geometry}
+                    material={cameraModel.scene.children[0].material}
+                />
+                <mesh
+                    geometry={cameraModel.scene.children[1].children[0].geometry}
+                    material={cameraModel.scene.children[1].children[0].material}
+                />
+                <mesh
+                    userData={{ hoverTime: 0 }} onPointerDown={enterFunction} onPointerUp={leaveFunction} onPointerEnter={enterFunction} onPointerLeave={leaveFunction}
+                    geometry={cameraModel.scene.children[1].children[2].geometry}
+                    material={cameraModel.scene.children[1].children[2].material}
+                />
+                <mesh
+                    geometry={cameraModel.scene.children[1].children[3].geometry}
+                    material={cameraModel.scene.children[1].children[3].material}
+                />
+            </group>
+
+            {start ? (
+                <>
+                    <Html position={[1, 2, 4]} occlude as="div" wrapperClass="point_0">
+                        <div className="h-15 w-50 bg-white flex flex-row items-center rounded-xl border-2 border-amber-900 bg-opacity-75">
+                            <input type="checkbox" id="checkbox1" onClick={checkCompletion} className="h-6 w-20" />
+                            <p className="h-ful w-30 ml-5 text-base text-start">標準域レンズ</p>
+                        </div>
+                    </Html>
+                    <Html position={[2, 3, -1]} occlude as="div" wrapperClass="point_1">
+                        <div className="h-15 w-50 bg-white flex flex-row items-center rounded-xl border-2 border-amber-900 bg-opacity-75">
+                            <p className="h-ful w-30 mr-5 text-base text-start">ファインダー</p>
+                            <input type="checkbox" id="checkbox2" onClick={checkCompletion} className="h-6 w-20" />
+                        </div>
+                    </Html>
+                    <Html position={[0, 0, -1]} occlude as="div" wrapperClass="point_2">
+                        <div className="h-15 w-50 bg-white flex flex-row items-center rounded-xl border-2 border-amber-900 bg-opacity-75">
+                            <input type="checkbox" id="checkbox3" onClick={checkCompletion} className="h-6 w-20" />
+                            <p className="h-ful w-30 ml-5 text-base text-start">革ストラップ</p>
+                        </div>
+                    </Html>
+                </>
+            ) : null}
+        </group>
+    );
+};
