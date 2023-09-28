@@ -9,7 +9,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Image from "next/image";
 
-export default function Home() {
+export default function CanvasComponent() {
     const [hoverWidth, setHoverWidth] = useState<number>(0);
     const [opacity, setOpacity] = useState<number>(0);
     const [color, setColor] = useState<string>("#0000bb")
@@ -112,7 +112,7 @@ const Box = ({ setHoverWidth, setOpacity, setColor, timerInterval, timerRunning,
     const [hoverTime, setHoverTime] = useState(0);
     const [unfinished, setFinish] = useState(true)
     const groupRef: any = useRef();
-    const cameraModel = useLoader(GLTFLoader as any, "/model/camera.glb", (loader) => {
+    const cameraModel = useLoader(GLTFLoader as any, "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/zombie-car/model.gltf", (loader) => {
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath("/draco/");
         loader.setDRACOLoader(dracoLoader);
@@ -132,7 +132,7 @@ const Box = ({ setHoverWidth, setOpacity, setColor, timerInterval, timerRunning,
     }
 
     useFrame((state, delta) => {
-        if(start){
+        if (start) {
 
             if (hover && move == 0) {
 
@@ -145,14 +145,14 @@ const Box = ({ setHoverWidth, setOpacity, setColor, timerInterval, timerRunning,
                     setColor("#bb0000")
                     newWidth = 0;
                     setHover(false)
-    
+
                 }
             }
             if (hover && move == 1) {
-    
+
                 setHoverTime((prevTime) => Math.min(prevTime + delta));
                 setOpacity(Math.min(100, hoverTime * 10))
-    
+
                 let newWidth = Math.min(100, (hoverTime) * 100);
                 setHoverWidth(newWidth);
                 if (newWidth == 100) {
@@ -163,10 +163,10 @@ const Box = ({ setHoverWidth, setOpacity, setColor, timerInterval, timerRunning,
                 }
             }
             if (hover && move == 2) {
-    
+
                 setHoverTime((prevTime) => Math.min(prevTime + delta));
                 setOpacity(Math.min(100, hoverTime * 10))
-    
+
                 let newWidth = Math.min(100, (hoverTime) * 100);
                 setHoverWidth(newWidth);
                 if (newWidth == 100) {
@@ -214,44 +214,32 @@ const Box = ({ setHoverWidth, setOpacity, setColor, timerInterval, timerRunning,
 
     return (
         <group ref={groupRef}>
-            <group scale={50} >
-                <mesh
-                    geometry={cameraModel.scene.children[0].geometry}
-                    material={cameraModel.scene.children[0].material}
-                />
-                <mesh
-                    geometry={cameraModel.scene.children[1].children[0].geometry}
-                    material={cameraModel.scene.children[1].children[0].material}
-                />
+            <group scale={0.5}>
                 <mesh
                     userData={{ hoverTime: 0 }} onPointerDown={enterFunction} onPointerUp={leaveFunction} onPointerEnter={enterFunction} onPointerLeave={leaveFunction}
-                    geometry={cameraModel.scene.children[1].children[2].geometry}
-                    material={cameraModel.scene.children[1].children[2].material}
-                />
-                <mesh
-                    geometry={cameraModel.scene.children[1].children[3].geometry}
-                    material={cameraModel.scene.children[1].children[3].material}
+                    geometry={cameraModel.scene.children[0].children[0].geometry}
+                    material={cameraModel.scene.children[0].children[0].material}
                 />
             </group>
 
             {start ? (
                 <>
-                    <Html position={[1, 2, 4]} occlude as="div" wrapperClass="point_0">
-                        <div className="h-15 w-50 bg-white flex flex-row items-center rounded-xl border-2 border-amber-900 bg-opacity-75">
+                    <Html position={[1, 1, 5]} occlude as="div" wrapperClass="point_0">
+                        <div className="h-20 w-40 bg-white flex flex-row items-center rounded-xl border-2 border-amber-900 bg-opacity-75">
                             <input type="checkbox" id="checkbox1" onClick={checkCompletion} className="h-6 w-20" />
-                            <p className="h-ful w-30 ml-5 text-base text-start">標準域レンズ</p>
+                            <p className="h-ful w-20 ml-5 text-base text-start">フロント</p>
                         </div>
                     </Html>
-                    <Html position={[2, 3, -1]} occlude as="div" wrapperClass="point_1">
-                        <div className="h-15 w-50 bg-white flex flex-row items-center rounded-xl border-2 border-amber-900 bg-opacity-75">
-                            <p className="h-ful w-30 mr-5 text-base text-start">ファインダー</p>
+                    <Html position={[1, 2, -5]} occlude as="div" wrapperClass="point_1">
+                        <div className="h-20 w-40 bg-white flex flex-row items-center rounded-xl border-2 border-amber-900 bg-opacity-75">
+                            <p className="h-ful w-20 mr-5 text-base text-start">リア</p>
                             <input type="checkbox" id="checkbox2" onClick={checkCompletion} className="h-6 w-20" />
                         </div>
                     </Html>
-                    <Html position={[0, 0, -1]} occlude as="div" wrapperClass="point_2">
-                        <div className="h-15 w-50 bg-white flex flex-row items-center rounded-xl border-2 border-amber-900 bg-opacity-75">
+                    <Html position={[0, -2, -1]} occlude as="div" wrapperClass="point_2">
+                        <div className="h-20 w-40 bg-white flex flex-row items-center rounded-xl border-2 border-amber-900 bg-opacity-75">
                             <input type="checkbox" id="checkbox3" onClick={checkCompletion} className="h-6 w-20" />
-                            <p className="h-ful w-30 ml-5 text-base text-start">革ストラップ</p>
+                            <p className="h-ful w-20 ml-5 text-base text-start">ボディ下部</p>
                         </div>
                     </Html>
                 </>
